@@ -32,6 +32,7 @@ let mixer,animationClip,clipAction = null;
 var loader = new THREE.GLTFLoader();
 loader.load('human.gltf', function (result) {
   scene.add(result.scene);
+  console.log('scene: ', scene);
 
   mixer = new THREE.AnimationMixer( result.scene );
   animationClip = result.animations[0];

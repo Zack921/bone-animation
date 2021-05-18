@@ -34,19 +34,19 @@ scene.add(axisHelper);
 // 创建一个圆柱几何体，高度120，顶点坐标y分量范围[-60,60]
 let geometry = new THREE.CylinderGeometry(5, 10, 120, 50, 300);
 geometry.translate(0, 60, 0); //平移后，y分量范围[0,120]
-console.log("name", geometry.vertices); //控制台查看顶点坐标
+console.log("geometry", geometry); //控制台查看顶点坐标
 
 /**
  * 设置几何体对象Geometry的蒙皮索引skinIndices、权重skinWeights属性
  * 实现一个模拟腿部骨骼运动的效果
  */
 //遍历几何体顶点，为每一个顶点设置蒙皮索引、权重属性
-//根据y来分段，0~60一段、60~100一段、100~120一段
+//根据y来分段，0~60一段、60~100一段、100~120一段 120->0
 for (let i = 0; i < geometry.vertices.length; i++) {
   let vertex = geometry.vertices[i]; //第i个顶点
   if (vertex.y <= 60) {
     // 设置每个顶点蒙皮索引属性  受根关节Bone1(0)影响
-    geometry.skinIndices.push(new THREE.Vector4(0, 0, 0, 0));
+    geometry.skinIndices.push(new THREE.Vector4(1, 0, 0, 0));
     // 设置每个顶点蒙皮权重属性
     // 影响该顶点关节Bone1对应权重是1-vertex.y/60
     geometry.skinWeights.push(new THREE.Vector4(1 - vertex.y / 60, 0, 0, 0));
@@ -78,8 +78,11 @@ scene.add(SkinnedMesh); //网格模型添加到场景中
  * 骨骼系统
  */
 var Bone1 = new THREE.Bone(); //关节1，用来作为根关节
+Bone1.name = 'Bone1';
 var Bone2 = new THREE.Bone(); //关节2
+Bone2.name = 'Bone2';
 var Bone3 = new THREE.Bone(); //关节3
+Bone3.name = 'Bone3';
 // 设置关节父子关系   多个骨头关节构成一个树结构
 Bone1.add(Bone2);
 Bone2.add(Bone3);
@@ -140,7 +143,7 @@ for ( var i = 0; i < bones.length; i ++ ) {
     folder.add( bone.scale, 'z', 0, 2 );
 
     folder.__controllers[ 0 ].name( "position.x" ).onChange(function (e) {
-      console.log('Bone1: ', Bone1);
+      console.log('scene: ', scene);
     });;
     folder.__controllers[ 1 ].name( "position.y" );
     folder.__controllers[ 2 ].name( "position.z" );
