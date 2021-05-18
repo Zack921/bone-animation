@@ -46,7 +46,7 @@ for (let i = 0; i < geometry.vertices.length; i++) {
   let vertex = geometry.vertices[i]; //第i个顶点
   if (vertex.y <= 60) {
     // 设置每个顶点蒙皮索引属性  受根关节Bone1(0)影响
-    geometry.skinIndices.push(new THREE.Vector4(1, 0, 0, 0));
+    geometry.skinIndices.push(new THREE.Vector4(0, 0, 0, 0));
     // 设置每个顶点蒙皮权重属性
     // 影响该顶点关节Bone1对应权重是1-vertex.y/60
     geometry.skinWeights.push(new THREE.Vector4(1 - vertex.y / 60, 0, 0, 0));
