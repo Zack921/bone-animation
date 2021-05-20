@@ -1,4 +1,4 @@
-// import * as THREE from './three/three.module.js'; // 新版本 THREE.SkinnedMesh no longer supports THREE.Geometry. Use THREE.BufferGeometry instead.
+import * as THREE from './three/three.module.js'; // 新版本 THREE.SkinnedMesh no longer supports THREE.Geometry. Use THREE.BufferGeometry instead.
 import { OrbitControls } from './three/orbitcontrols.js';
 import { GUI } from './three/dat.gui.module.js';
 
@@ -56,48 +56,64 @@ const skeleton = new THREE.Skeleton([Bone1, Bone2, Bone3]);
 
 /* 4.绑骨 - 设置顶点关联的骨骼索引和权重 */
 // 遍历几何体顶点，为每一个顶点设置蒙皮索引、权重属性
-for (let i = 0; i < geometry.vertices.length; i++) {
-  let vertex = geometry.vertices[i];
+const position = geometry.attributes.position;
+const vertex = new THREE.Vector3();
+const skinIndices = []; const skinWeights = [];
 
-  if (vertex.y <= 60) { // 0~60
+for ( let i = 0; i < position.count; i ++ ) {
 
-    // 设置每个顶点蒙皮索引属性  受根关节Bone1影响
-    geometry.skinIndices.push(new THREE.Vector4(0, 0, 0, 0));
-    // 设置每个顶点蒙皮权重属性
-    geometry.skinWeights.push(new THREE.Vector4(1 - vertex.y / 60, 0, 0, 0));
+	vertex.fromBufferAttribute( position, i );
 
-  } else if (60 < vertex.y && vertex.y <= 60 + 40) { // 60~100
+  if (vertex.y < 60) { // 0~60
 
-    geometry.skinIndices.push(new THREE.Vector4(1, 0, 0, 0));
-    geometry.skinWeights.push(new THREE.Vector4(1 - (vertex.y - 60) / 40, 0, 0, 0));
+    // 设置每个顶点对应骨骼的索引，受根关节Bone1影响
+    skinIndices.push(0, 0, 0, 0);
+    // 设置每个顶点对应骨骼的权重
+    skinWeights.push(1, 0, 0, 0);
+    
+  } else if (60 <= vertex.y && vertex.y < 60 + 40) { // 60~100
 
-  } else if (60 + 40 < vertex.y && vertex.y <= 60 + 40 + 20) { // 100~120
+    skinIndices.push(1, 0, 0, 0);
+    skinWeights.push(1, 0, 0, 0);
 
-    geometry.skinIndices.push(new THREE.Vector4(2, 0, 0, 0));
-    geometry.skinWeights.push(new THREE.Vector4(1 - (vertex.y - 100) / 20, 0, 0, 0));
+  } else if (60 + 40 <= vertex.y && vertex.y <= 60 + 40 + 20) { // 100~120
 
+    skinIndices.push(2, 0, 0, 0);
+    skinWeights.push(1, 0, 0, 0);
+    
   }
+
 }
+
+geometry.setAttribute( 'skinIndex', new THREE.Uint16BufferAttribute( skinIndices, 4 ) );
+geometry.setAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeights, 4 ) );
 
 /* 5.创建蒙皮网格 */
 const material = new THREE.MeshPhongMaterial({
-  skinning: true, //允许蒙皮动画
   wireframe: true,
 });
+
 const SkinnedMesh = new THREE.SkinnedMesh(geometry, material);
 
 /* 6.后续绑骨 - 绑完之后才能索引到对应骨骼 */
 SkinnedMesh.add(Bone1); // 添加根骨骼
 SkinnedMesh.bind(skeleton); // 绑定骨架
-console.log('SkinnedMesh: ', SkinnedMesh);
 
 /* 7.添加到场景中渲染 */
 scene.add(SkinnedMesh);
+console.log('scene: ', scene);
+
+// [1, 0, 0, 0,
+//  0, 1, 0, 60,
+//  0, 0, 1, 0,
+//  0, 0, 0, 1 ]
+
+// (10, 60, 0, 1)
 
 /**
  * 骨骼辅助显示
  */
- const skeletonHelper = new THREE.SkeletonHelper(SkinnedMesh);
+const skeletonHelper = new THREE.SkeletonHelper(SkinnedMesh);
 scene.add(skeletonHelper);
 
 // 转动关节带动骨骼网格模型出现弯曲效果  好像腿弯曲一样
