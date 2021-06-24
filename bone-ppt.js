@@ -103,12 +103,13 @@ SkinnedMesh.bind(skeleton); // 绑定骨架
 scene.add(SkinnedMesh);
 console.log('scene: ', scene);
 
-// [1, 0, 0, 0,
+// [1, 0, 0, 10,
 //  0, 1, 0, 60,
 //  0, 0, 1, 0,
 //  0, 0, 0, 1 ]
 
 // (10, 60, 0, 1)
+
 
 /**
  * 骨骼辅助显示
